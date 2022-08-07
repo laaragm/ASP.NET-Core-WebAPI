@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,12 +80,8 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(loginUserViewModel);
 		}
 
-		private async Task<string> GenerateJwt(string email)
+		private ClaimsIdentity GetIdentityClaims(IdentityUser user, IEnumerable<string> roles, IList<Claim> claims)
 		{
-			var user = await UserManager.FindByEmailAsync(email);
-			var claims = await UserManager.GetClaimsAsync(user);
-			var roles = await UserManager.GetRolesAsync(user);
-
 			claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id)); // Attemps to match subject of the token
 			claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
 			claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())); // Provides a unique identifier for the JWT
@@ -96,6 +94,11 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			var identityClaims = new ClaimsIdentity();
 			identityClaims.AddClaims(claims);
 
+			return identityClaims;
+		}
+
+		private string CreateToken(ClaimsIdentity identityClaims)
+		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.ASCII.GetBytes(AppSettings.Secret);
 			var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
@@ -106,9 +109,37 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 				Expires = DateTime.UtcNow.AddHours(AppSettings.HoursToExpire),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
 			});
-			var endcodedToken = tokenHandler.WriteToken(token); // Serialize token
+			var encodedToken = tokenHandler.WriteToken(token); // Serialize token
 
-			return endcodedToken;
+			return encodedToken;
+		}
+
+		private LoginResponseViewModel GenerateResponse(string encodedToken, IdentityUser user, IEnumerable<Claim> claims)
+		{
+			var response = new LoginResponseViewModel
+			{
+				AccessToken = encodedToken,
+				ExpiresIn = TimeSpan.FromHours(AppSettings.HoursToExpire).TotalSeconds,
+				UserToken = new UserTokenViewModel
+				{
+					Id = user.Id,
+					Email = user.Email,
+					Claims = claims.Select(c => new ClaimViewModel { Type = c.Type, Value = c.Value })
+				}
+			};
+
+			return response;
+		}
+
+		private async Task<LoginResponseViewModel> GenerateJwt(string email)
+		{
+			var user = await UserManager.FindByEmailAsync(email);
+			var roles = await UserManager.GetRolesAsync(user);
+			var claims = await UserManager.GetClaimsAsync(user);
+			var identityClaims = GetIdentityClaims(user, roles, claims);
+			var encodedToken = CreateToken(identityClaims);
+
+			return GenerateResponse(encodedToken, user, claims);
 		}
 
 		private static long ToUnixEpochDate(DateTime date) 
