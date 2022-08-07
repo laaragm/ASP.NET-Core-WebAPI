@@ -35,6 +35,8 @@ namespace AspNetCore_WebApi_DevIO
 				options.UseSqlServer(Configuration.GetConnectionString("DatabaseConnectionString"));
 			});
 
+			services.AddIdentityConfig(Configuration);
+
 			services.AddAutoMapper(typeof(Startup)); // When we add the 'typeof(Startup' it basically says that it'll resolve everything from this particular assembly
 
 			services.ResolveDependencies();
@@ -51,6 +53,8 @@ namespace AspNetCore_WebApi_DevIO
 			{
 				app.UseDeveloperExceptionPage();
 			}
+
+			app.UseAuthentication();
 
 			app.UseMvcConfig();
 		}
