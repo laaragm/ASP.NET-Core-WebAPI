@@ -3,6 +3,7 @@ using AspNetCore_WebApi_DevIO.ViewModels;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using AspNetCore_WebAPI_DevIO.Business.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCore_WebApi_DevIO.Controllers
 {
+	[Authorize]
 	[Route("api/[controller]")]
 	public class ProductsController : MainController
 	{
@@ -39,7 +41,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 		[HttpGet("{id:guid}")]
 		public async Task<ActionResult<ProductViewModel>> GetById(Guid id)
 		{
-			var productViewModel = GetProduct(id);
+			var productViewModel = await GetProduct(id);
 			if (productViewModel == null)
 			{
 				return NotFound();
@@ -48,6 +50,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return Ok(productViewModel);
 		}
 
+		[ClaimsAuthorize("Product", "Create")]
 		[HttpPost]
 		public async Task<ActionResult<ProductViewModel>> Create([ModelBinder(BinderType = typeof(ProductModelBinder))] ProductViewModel productViewModel)
 		{
@@ -67,6 +70,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(productViewModel);
 		}
 
+		[ClaimsAuthorize("Product", "Delete")]
 		[HttpDelete("{id:guid}")]
 		public async Task<ActionResult<ProductViewModel>> Delete(Guid id)
 		{
@@ -80,6 +84,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(product);
 		}
 
+		[ClaimsAuthorize("Product", "Update")]
 		[HttpPut("{id:guid}")]
 		public async Task<IActionResult> Update(Guid id, [ModelBinder(BinderType = typeof(ProductModelBinder))] ProductViewModel productViewModel)
 		{
