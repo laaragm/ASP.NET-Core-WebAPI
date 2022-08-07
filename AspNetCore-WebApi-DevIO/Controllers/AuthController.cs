@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,7 +45,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (result.Succeeded)
 			{
 				await SignInManager.SignInAsync(user, isPersistent: false);
-				return CustomResponse(GenerateJwt());
+				return CustomResponse(await GenerateJwt(registerUserViewModel.Email));
 			}
 			foreach (var error in result.Errors)
 			{
@@ -65,7 +66,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			var result = await SignInManager.PasswordSignInAsync(loginUserViewModel.Email, loginUserViewModel.Password, isPersistent: false, lockoutOnFailure: true);
 			if (result.Succeeded)
 			{
-				return CustomResponse(GenerateJwt());
+				return CustomResponse(await GenerateJwt(loginUserViewModel.Email));
 			}
 			if (result.IsLockedOut)
 			{
@@ -77,20 +78,40 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(loginUserViewModel);
 		}
 
-		private string GenerateJwt()
+		private async Task<string> GenerateJwt(string email)
 		{
+			var user = await UserManager.FindByEmailAsync(email);
+			var claims = await UserManager.GetClaimsAsync(user);
+			var roles = await UserManager.GetRolesAsync(user);
+
+			claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id)); // Attemps to match subject of the token
+			claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+			claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())); // Provides a unique identifier for the JWT
+			claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString())); // Time before which the JWT must not be accepted
+			claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.UtcNow).ToString(), ClaimValueTypes.Integer64)); // Issued at
+			foreach (var role in roles)
+			{
+				claims.Add(new Claim("role", role));
+			}
+			var identityClaims = new ClaimsIdentity();
+			identityClaims.AddClaims(claims);
+
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.ASCII.GetBytes(AppSettings.Secret);
 			var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
 			{
 				Issuer = AppSettings.Issuer,
 				Audience = AppSettings.Audience,
+				Subject = identityClaims,
 				Expires = DateTime.UtcNow.AddHours(AppSettings.HoursToExpire),
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
 			});
 			var endcodedToken = tokenHandler.WriteToken(token); // Serialize token
 
 			return endcodedToken;
 		}
+
+		private static long ToUnixEpochDate(DateTime date) 
+			=> (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
 	}
 }

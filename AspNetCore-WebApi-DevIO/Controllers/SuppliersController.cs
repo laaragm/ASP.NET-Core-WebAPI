@@ -1,4 +1,5 @@
-﻿using AspNetCore_WebApi_DevIO.ViewModels;
+﻿using AspNetCore_WebApi_DevIO.Extensions;
+using AspNetCore_WebApi_DevIO.ViewModels;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using AspNetCore_WebAPI_DevIO.Business.Models;
 using AutoMapper;
@@ -32,7 +33,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			AddressRepository = addressRepository;
 		}
 
-		[AllowAnonymous]
+		//[AllowAnonymous]
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<SupplierViewModel>>> GetAll()
 		{
@@ -53,6 +54,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return Ok(supplier);
 		}
 
+		[ClaimsAuthorize("Supplier", "Create")]
 		[HttpPost]
 		public async Task<ActionResult<SupplierViewModel>> Create(SupplierViewModel supplierViewModel)
 		{
@@ -65,6 +67,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(supplierViewModel);
 		}
 
+		[ClaimsAuthorize("Supplier", "Update")]
 		[HttpPut("{id:guid}")]
 		public async Task<ActionResult<SupplierViewModel>> Update(Guid id, SupplierViewModel supplierViewModel)
 		{
@@ -82,6 +85,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return CustomResponse(supplierViewModel);
 		}
 
+		[ClaimsAuthorize("Supplier", "Delete")]
 		[HttpDelete("{id:guid}")]
 		public async Task<ActionResult<SupplierViewModel>> Delete(Guid id)
 		{
@@ -102,6 +106,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			return addressViewModel;
 		}
 
+		[ClaimsAuthorize("Supplier", "Update")]
 		[HttpPut("update-address/{id:guid}")]
 		public async Task<IActionResult> UpdateAddress(Guid id, AddressViewModel addressViewModel)
 		{
