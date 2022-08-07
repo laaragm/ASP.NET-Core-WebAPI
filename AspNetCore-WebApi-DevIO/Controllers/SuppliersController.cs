@@ -15,7 +15,6 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 		private readonly ISupplierRepository SupplierRepository;
 		private readonly IMapper Mapper;
 		private readonly ISupplierService SupplierService;
-		private readonly INotifier Notifier;
 		private readonly IAddressRepository AddressRepository;
 
 		public SuppliersController(
