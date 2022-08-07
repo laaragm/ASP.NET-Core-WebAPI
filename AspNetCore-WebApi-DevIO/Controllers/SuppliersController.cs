@@ -2,6 +2,7 @@
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using AspNetCore_WebAPI_DevIO.Business.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCore_WebApi_DevIO.Controllers
 {
+	[Authorize]
 	[Route("api/[controller]")]
 	public class SuppliersController : MainController
 	{
@@ -30,6 +32,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			AddressRepository = addressRepository;
 		}
 
+		[AllowAnonymous]
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<SupplierViewModel>>> GetAll()
 		{
