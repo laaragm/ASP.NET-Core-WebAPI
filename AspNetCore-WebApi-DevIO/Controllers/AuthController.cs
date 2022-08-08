@@ -22,7 +22,11 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 		private readonly UserManager<IdentityUser> UserManager;
 		private readonly AppSettings AppSettings;
 
-		public AuthController(INotifier notifier, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IOptions<AppSettings> appSettings) : base(notifier)
+		public AuthController(INotifier notifier,
+							  SignInManager<IdentityUser> signInManager,
+							  UserManager<IdentityUser> userManager,
+							  IOptions<AppSettings> appSettings,
+							  IUser user) : base(notifier, user)
 		{
 			SignInManager = signInManager;
 			UserManager = userManager;

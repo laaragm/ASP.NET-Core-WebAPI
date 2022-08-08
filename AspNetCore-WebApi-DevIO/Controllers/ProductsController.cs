@@ -24,7 +24,8 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 		public ProductsController(INotifier notifier, 
 								  IProductRepository productRepository,
 								  IProductService productService,
-								  IMapper mapper) : base(notifier)
+								  IMapper mapper,
+								  IUser user) : base(notifier, user)
 		{
 			ProductRepository = productRepository;
 			ProductService = productService;

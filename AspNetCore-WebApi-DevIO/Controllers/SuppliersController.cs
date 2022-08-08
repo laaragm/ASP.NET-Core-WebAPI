@@ -20,12 +20,12 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 		private readonly ISupplierService SupplierService;
 		private readonly IAddressRepository AddressRepository;
 
-		public SuppliersController(
-			ISupplierRepository supplierRepository, 
-			IMapper mapper, 
-			ISupplierService supplierService, 
-			INotifier notifier, 
-			IAddressRepository addressRepository) : base(notifier)
+		public SuppliersController(ISupplierRepository supplierRepository, 
+								   IMapper mapper, 
+								   ISupplierService supplierService, 
+								   INotifier notifier, 
+								   IAddressRepository addressRepository,
+								   IUser user) : base(notifier, user)
 		{
 			SupplierRepository = supplierRepository;
 			Mapper = mapper;

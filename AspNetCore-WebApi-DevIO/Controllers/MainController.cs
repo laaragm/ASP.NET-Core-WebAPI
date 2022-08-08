@@ -2,6 +2,7 @@
 using AspNetCore_WebAPI_DevIO.Business.Notifications;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Linq;
 
 namespace AspNetCore_WebApi_DevIO.Controllers
@@ -11,10 +12,21 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 	public abstract class MainController : ControllerBase
 	{
 		private readonly INotifier Notifier;
+		public readonly IUser AppUser;
 
-		public MainController(INotifier notifier)
+		protected Guid UserId { get; set; }
+		protected bool IsUserAuthenticated { get; set; }
+
+		public MainController(INotifier notifier, IUser appUser)
 		{
 			Notifier = notifier;
+			AppUser = appUser;
+
+			if (AppUser.IsAuthenticated())
+			{
+				UserId = AppUser.GetUserId();
+				IsUserAuthenticated = true;
+			}
 		}
 
 		protected bool ValidOperation() => !Notifier.HasNotification();

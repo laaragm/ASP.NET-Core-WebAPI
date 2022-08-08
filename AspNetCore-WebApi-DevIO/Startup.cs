@@ -39,24 +39,17 @@ namespace AspNetCore_WebApi_DevIO
 
 			services.AddAutoMapper(typeof(Startup)); // When we add the 'typeof(Startup' it basically says that it'll resolve everything from this particular assembly
 
-			services.ResolveDependencies();
-
-			services.WebApiConfig();
+			services.AddApiConfig();
 
 			services.AddControllers();
+
+			services.ResolveDependencies();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-
-			app.UseAuthentication();
-
-			app.UseMvcConfig();
+			app.UseApiConfig(env);
 		}
 	}
 }

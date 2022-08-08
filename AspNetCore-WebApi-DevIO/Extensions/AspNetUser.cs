@@ -8,6 +8,7 @@ namespace AspNetCore_WebApi_DevIO.Extensions
 {
     public class AspNetUser : IUser
     {
+        // This class is from AspNetCore, so it's not a good practice to inject it in other layers as you're generating some coupling with AspNetCore
         private readonly IHttpContextAccessor Accessor;
 
         public AspNetUser(IHttpContextAccessor accessor)
