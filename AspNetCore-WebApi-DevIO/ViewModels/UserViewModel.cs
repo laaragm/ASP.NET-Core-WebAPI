@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AspNetCore_WebApi_DevIO.ViewModels
@@ -38,6 +39,7 @@ namespace AspNetCore_WebApi_DevIO.ViewModels
     public class LoginResponseViewModel
     {
         public string AccessToken { get; set; }
+        public Guid RefreshToken { get; set; }
         public double ExpiresIn { get; set; }
         public UserTokenViewModel UserToken { get; set; }
     }
@@ -47,4 +49,18 @@ namespace AspNetCore_WebApi_DevIO.ViewModels
         public string Value { get; set; }
         public string Type { get; set; }
     }
+
+    public class RefreshToken
+	{
+        public Guid Id { get; set; } // This property simply exists so it can be the primary key of the table
+        public string Username { get; set; }
+        public Guid Token { get; set; }
+        public DateTime ExpirationDate { get; set; }
+
+		public RefreshToken()
+		{
+            Id = Guid.NewGuid();
+            Token = Guid.NewGuid();
+		}
+	}
 }

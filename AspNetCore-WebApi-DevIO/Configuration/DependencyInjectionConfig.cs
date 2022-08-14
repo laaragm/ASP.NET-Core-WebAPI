@@ -1,4 +1,5 @@
 ﻿using AspNetCore_WebApi_DevIO.Extensions;
+using AspNetCore_WebApi_DevIO.Services;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using AspNetCore_WebAPI_DevIO.Business.Notifications;
 using AspNetCore_WebAPI_DevIO.Business.Services;
@@ -21,6 +22,7 @@ namespace AspNetCore_WebApi_DevIO.Configuration
 			services.AddScoped<ISupplierService, SupplierService>();
 			services.AddScoped<IProductService, ProductService>();
 			services.AddScoped<INotifier, Notifier>();
+			services.AddScoped<AuthenticationService>();
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddScoped<IUser, AspNetUser>();

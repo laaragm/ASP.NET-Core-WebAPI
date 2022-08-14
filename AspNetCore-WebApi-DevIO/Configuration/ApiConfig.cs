@@ -1,6 +1,4 @@
-﻿using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +37,7 @@ namespace DevIO.Api.Configurations
                 options.AddPolicy("Production",
                     builder =>
                         builder
-                            .WithMethods("GET")
+                            .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                             .WithOrigins("http://my-origin-here.com")
                             .SetIsOriginAllowedToAllowWildcardSubdomains()
                             //.WithHeaders(HeaderNames.ContentType, "x-custom-header") // You can also restrict via headers
@@ -66,6 +64,7 @@ namespace DevIO.Api.Configurations
 
             app.UseRouting();
 
+            // Add middleware to listening authentication and authorization for each request and response
             app.UseAuthentication();
             app.UseAuthorization();
 
