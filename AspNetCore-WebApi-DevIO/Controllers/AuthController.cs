@@ -4,6 +4,7 @@ using AspNetCore_WebApi_DevIO.ViewModels;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace AspNetCore_WebApi_DevIO.Controllers
@@ -67,6 +68,26 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 
 			NotifyError("Incorrect user or password");
 			return CustomResponse(loginUserViewModel);
+		}
+
+		[HttpPost("refresh-token")]
+		public async Task<ActionResult> RefreshToken(RefreshTokenViewModel refreshTokenViewModel)
+		{
+			var refreshToken = refreshTokenViewModel.RefreshToken;
+			if (string.IsNullOrEmpty(refreshToken))
+			{
+				NotifyError("Informed refresh token is invalid");
+				return CustomResponse();
+			}
+
+			var token = await AuthenticationService.GetRefreshToken(Guid.Parse(refreshToken));
+			if (token is null)
+			{
+				NotifyError("Refresh token has expired");
+				return CustomResponse();
+			}
+
+			return CustomResponse(await AuthenticationService.GenerateJwt(token.Username));
 		}
 	}
 }

@@ -116,7 +116,7 @@ namespace AspNetCore_WebApi_DevIO.Services
 			return refreshToken;
 		}
 
-		public async Task<RefreshToken> GetRefreshAsync(Guid refreshToken)
+		public async Task<RefreshToken> GetRefreshToken(Guid refreshToken)
 		{
 			var token = await Context.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(x => x.Token == refreshToken);
 

@@ -63,4 +63,9 @@ namespace AspNetCore_WebApi_DevIO.ViewModels
             Token = Guid.NewGuid();
 		}
 	}
+
+    public class RefreshTokenViewModel
+	{
+        public string RefreshToken { get; set; }
+	}
 }
