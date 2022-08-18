@@ -111,7 +111,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			}
 
 			var token = await AuthenticationService.UserManager.GeneratePasswordResetTokenAsync(user);
-			var url = $"https://localhost:44358/forgot-password?token={token}";
+			var url = $"{AuthenticationService.AppSettings.FrontEndBaseURL}/forgot-password?token={token}";
 			EmailService.Send(email, "Forgot Password", url);
 
 			return CustomResponse(token);

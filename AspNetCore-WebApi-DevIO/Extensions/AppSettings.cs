@@ -7,5 +7,6 @@
 		public string Issuer { get; set; }
 		public string Audience { get; set; } // Applications that should accept the token
 		public int RefreshTokenHoursToExpire { get; set; }
+		public string FrontEndBaseURL { get; set; }
 	}
 }
