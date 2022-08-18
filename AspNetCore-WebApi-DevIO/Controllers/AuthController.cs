@@ -2,6 +2,7 @@
 using AspNetCore_WebApi_DevIO.Services;
 using AspNetCore_WebApi_DevIO.ViewModels;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
+using Mailing.Services.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +14,12 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 	public class AuthController : MainController
 	{
 		private readonly AuthenticationService AuthenticationService;
+		private readonly ITransmissionService EmailService;
 
-		public AuthController(INotifier notifier, IUser user, AuthenticationService authenticationService) : base(notifier, user)
+		public AuthController(INotifier notifier, IUser user, AuthenticationService authenticationService, ITransmissionService emailService) : base(notifier, user)
 		{
 			AuthenticationService = authenticationService;
+			EmailService = emailService;
 		}
 
 		[HttpPost("register")]
@@ -88,6 +91,30 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			}
 
 			return CustomResponse(await AuthenticationService.GenerateJwt(token.Username));
+		}
+
+		[HttpPost("forgot-password")]
+		public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel forgotPasswordViewModel)
+		{
+			var email = forgotPasswordViewModel.Email;
+			if (string.IsNullOrEmpty(email))
+			{
+				NotifyError("Informed email is invalid");
+				return CustomResponse();
+			}
+
+			var user = await AuthenticationService.UserManager.FindByEmailAsync(email);
+			if (user == null)
+			{
+				NotifyError("Could not find an user with the provided email.");
+				return CustomResponse();
+			}
+
+			var token = await AuthenticationService.UserManager.GeneratePasswordResetTokenAsync(user);
+			var url = $"https://localhost:44358/forgot-password?token={token}";
+			EmailService.Send(email, "Forgot Password", url);
+
+			return CustomResponse(token);
 		}
 	}
 }

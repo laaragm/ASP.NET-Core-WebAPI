@@ -48,6 +48,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspNetCore-WebAPI-DevIO.Data\AspNetCore-WebAPI-DevIO.Data.csproj" />
+    <ProjectReference Include="..\Mailing.Domain\Mailing.Domain.csproj" />
+    <ProjectReference Include="..\Mailing.Services.Abstractions\Mailing.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\Mailing.Services\Mailing.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

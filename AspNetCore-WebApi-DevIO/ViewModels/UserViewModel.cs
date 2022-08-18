@@ -68,4 +68,9 @@ namespace AspNetCore_WebApi_DevIO.ViewModels
 	{
         public string RefreshToken { get; set; }
 	}
+
+    public class ForgotPasswordViewModel
+    {
+        public string Email { get; set; }
+    }
 }

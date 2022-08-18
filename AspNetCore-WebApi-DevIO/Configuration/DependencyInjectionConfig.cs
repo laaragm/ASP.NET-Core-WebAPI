@@ -5,6 +5,8 @@ using AspNetCore_WebAPI_DevIO.Business.Notifications;
 using AspNetCore_WebAPI_DevIO.Business.Services;
 using AspNetCore_WebAPI_DevIO.Data.Context;
 using AspNetCore_WebAPI_DevIO.Data.Repository;
+using Mailing.Services;
+using Mailing.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +28,8 @@ namespace AspNetCore_WebApi_DevIO.Configuration
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddScoped<IUser, AspNetUser>();
+
+			services.AddScoped<ITransmissionService, TransmissionService>();
 
 			return services;
 		}
