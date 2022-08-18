@@ -116,5 +116,31 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 
 			return CustomResponse(token);
 		}
+
+		[HttpPost("reset-password")]
+		public async Task<IActionResult> ResetPassword(ResetPasswordViewModel resetPasswordViewModel)
+		{
+			if (!ModelState.IsValid)
+			{
+				return CustomResponse(ModelState);
+			}
+
+			var user = await AuthenticationService.UserManager.FindByEmailAsync(resetPasswordViewModel.Email);
+			if (user == null)
+			{
+				NotifyError("Could not find an user with the provided email.");
+				return CustomResponse();
+			}
+
+			var result = await AuthenticationService.UserManager.ResetPasswordAsync(user, resetPasswordViewModel.Token, resetPasswordViewModel.Password);
+			if (!result.Succeeded)
+			{
+				foreach (var error in result.Errors)
+					ModelState.AddModelError(error.Code, error.Description);
+				return CustomResponse(ModelState);
+			}
+
+			return CustomResponse(result);
+		}
 	}
 }

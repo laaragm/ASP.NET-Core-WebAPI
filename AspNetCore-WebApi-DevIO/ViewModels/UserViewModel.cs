@@ -73,4 +73,17 @@ namespace AspNetCore_WebApi_DevIO.ViewModels
     {
         public string Email { get; set; }
     }
+
+    public class ResetPasswordViewModel
+	{
+        public string Email { get; set; }
+        public string Token { get; set; }
+
+        [Required(ErrorMessage = "The field {0} is mandatory")]
+        [StringLength(100, ErrorMessage = "The field {0} is mandatory and it should contain between {2} and {1} letters", MinimumLength = 6)]
+        public string Password { get; set; }
+
+        [Compare("Password", ErrorMessage = "The passwords are not equal")]
+        public string ConfirmPassword { get; set; }
+    }
 }
