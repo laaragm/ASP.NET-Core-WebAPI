@@ -4,6 +4,7 @@ using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using Mailing.Services.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -15,11 +16,17 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 	{
 		private readonly AuthenticationService AuthenticationService;
 		private readonly ITransmissionService EmailService;
+		private readonly ILogger Logger;
 
-		public AuthController(INotifier notifier, IUser user, AuthenticationService authenticationService, ITransmissionService emailService) : base(notifier, user)
+		public AuthController(INotifier notifier,
+							  IUser user,
+							  AuthenticationService authenticationService,
+							  ITransmissionService emailService,
+							  ILogger<AuthController> logger) : base(notifier, user)
 		{
 			AuthenticationService = authenticationService;
 			EmailService = emailService;
+			Logger = logger;
 		}
 
 		[HttpPost("register")]
@@ -40,11 +47,13 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (result.Succeeded)
 			{
 				await AuthenticationService.SignInManager.SignInAsync(user, isPersistent: false);
+				Logger.LogInformation($"User {registerUserViewModel.Email} has been registered successfully.");
 				return CustomResponse(await AuthenticationService.GenerateJwt(registerUserViewModel.Email));
 			}
 			foreach (var error in result.Errors)
 			{
 				NotifyError(error.Description);
+				Logger.LogInformation($"User could not be registered. Failed with message: {error.Description}.");
 			}
 
 			return CustomResponse(registerUserViewModel);
@@ -61,15 +70,18 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			var result = await AuthenticationService.SignInManager.PasswordSignInAsync(loginUserViewModel.Email, loginUserViewModel.Password, isPersistent: false, lockoutOnFailure: true);
 			if (result.Succeeded)
 			{
+				Logger.LogInformation($"User {loginUserViewModel.Email} has been logged in successfully.");
 				return CustomResponse(await AuthenticationService.GenerateJwt(loginUserViewModel.Email));
 			}
 			if (result.IsLockedOut)
 			{
 				NotifyError("User temporarily locked for failed login attempts");
+				Logger.LogInformation($"User {loginUserViewModel.Email} has been temporarily locked for failed login attempts.");
 				return CustomResponse(loginUserViewModel);
 			}
 
 			NotifyError("Incorrect user or password");
+			Logger.LogInformation($"User {loginUserViewModel.Email} provided a non-registered email or an incorrect password.");
 			return CustomResponse(loginUserViewModel);
 		}
 
@@ -80,6 +92,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (string.IsNullOrEmpty(refreshToken))
 			{
 				NotifyError("Informed refresh token is invalid");
+				Logger.LogInformation($"Refresh token {refreshTokenViewModel.RefreshToken} is invalid.");
 				return CustomResponse();
 			}
 
@@ -87,10 +100,13 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (token is null)
 			{
 				NotifyError("Refresh token has expired");
+				Logger.LogInformation($"Refresh token {refreshTokenViewModel.RefreshToken} has expired.");
 				return CustomResponse();
 			}
 
-			return CustomResponse(await AuthenticationService.GenerateJwt(token.Username));
+			var result = await AuthenticationService.GenerateJwt(token.Username);
+			Logger.LogInformation($"A new access token {result.AccessToken} has been generated successfully for user {token.Username}.");
+			return CustomResponse(result);
 		}
 
 		[HttpPost("forgot-password")]
@@ -100,6 +116,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (string.IsNullOrEmpty(email))
 			{
 				NotifyError("Informed email is invalid");
+				Logger.LogInformation($"Email {forgotPasswordViewModel.Email} is not valid.");
 				return CustomResponse();
 			}
 
@@ -107,12 +124,14 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (user == null)
 			{
 				NotifyError("Could not find an user with the provided email.");
+				Logger.LogInformation($"The user {forgotPasswordViewModel.Email} could not be found.");
 				return CustomResponse();
 			}
 
 			var token = await AuthenticationService.UserManager.GeneratePasswordResetTokenAsync(user);
 			var url = $"{AuthenticationService.AppSettings.FrontEndBaseURL}/forgot-password?token={token}";
 			EmailService.Send(email, "Forgot Password", url);
+			Logger.LogInformation($"A new token {token} to reset the password has been generated successfully for user {user.Email}.");
 
 			return CustomResponse(token);
 		}
@@ -129,6 +148,7 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (user == null)
 			{
 				NotifyError("Could not find an user with the provided email.");
+				Logger.LogInformation($"The user {resetPasswordViewModel.Email} could not be found.");
 				return CustomResponse();
 			}
 
@@ -136,10 +156,14 @@ namespace AspNetCore_WebApi_DevIO.Controllers
 			if (!result.Succeeded)
 			{
 				foreach (var error in result.Errors)
+				{
 					ModelState.AddModelError(error.Code, error.Description);
+					Logger.LogInformation($"Password could not be modified. Failed with message: {error.Description}.");
+				}
 				return CustomResponse(ModelState);
 			}
 
+			Logger.LogInformation($"Password for user {user.Email} has been modified successfully.");
 			return CustomResponse(result);
 		}
 	}
