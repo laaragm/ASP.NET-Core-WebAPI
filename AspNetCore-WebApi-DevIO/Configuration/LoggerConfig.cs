@@ -36,7 +36,7 @@ namespace AspNetCore_WebApi_DevIO.Configuration
 
 		public static IApplicationBuilder UseLoggingConfiguration(this IApplicationBuilder app)
 		{
-			app.UseElmahIo();
+			//app.UseElmahIo();
 
 			return app;
 		}
