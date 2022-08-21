@@ -114,9 +114,7 @@ namespace AspNetCore_WebApi_DevIO.Configuration
 
             foreach (var parameter in operation.Parameters)
             {
-                var description = context.ApiDescription
-                    .ParameterDescriptions
-                    .First(p => p.Name == parameter.Name);
+                var description = context.ApiDescription .ParameterDescriptions .First(p => p.Name == parameter.Name);
 
                 var routeInfo = description.RouteInfo;
 
@@ -142,25 +140,25 @@ namespace AspNetCore_WebApi_DevIO.Configuration
         }
     }
 
+    // You can use this middleware to restrict the documentation access of the API when it's necessary
     public class SwaggerAuthorizedMiddleware
     {
-        private readonly RequestDelegate _next;
+        private readonly RequestDelegate Next;
 
         public SwaggerAuthorizedMiddleware(RequestDelegate next)
         {
-            _next = next;
+            Next = next;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path.StartsWithSegments("/swagger")
-                && !context.User.Identity.IsAuthenticated)
+            if (context.Request.Path.StartsWithSegments("/swagger") && !context.User.Identity.IsAuthenticated)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
             }
 
-            await _next.Invoke(context);
+            await Next.Invoke(context);
         }
     }
 }
