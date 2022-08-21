@@ -33,7 +33,7 @@ namespace AspNetCore_WebApi_DevIO.Extensions
         // Only the exceptions will fall here
         private static void HandleException(HttpContext context, Exception exception)
         {
-			exception.Ship(context);
+			//exception.Ship(context);
 			context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
     }
