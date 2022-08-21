@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 namespace AspNetCore_WebApi_DevIO.Controllers
 {
 	[Authorize]
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}/[controller]")]
 	public class SuppliersController : MainController
 	{
 		private readonly ISupplierRepository SupplierRepository;

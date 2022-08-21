@@ -1,5 +1,4 @@
-﻿using AspNetCore_WebApi_DevIO.Extensions;
-using AspNetCore_WebApi_DevIO.Services;
+﻿using AspNetCore_WebApi_DevIO.Services;
 using AspNetCore_WebApi_DevIO.ViewModels;
 using AspNetCore_WebAPI_DevIO.Business.Interfaces;
 using Mailing.Services.Abstractions;
@@ -10,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace AspNetCore_WebApi_DevIO.Controllers
 {
-	[Route("api")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	public class AuthController : MainController
 	{
 		private readonly AuthenticationService AuthenticationService;
