@@ -45,6 +45,8 @@ namespace AspNetCore_WebApi_DevIO
 
 			services.AddSwaggerConfig();
 
+			services.AddLoggingConfig(Configuration);
+
 			services.ResolveDependencies();
 		}
 
@@ -54,6 +56,8 @@ namespace AspNetCore_WebApi_DevIO
 			app.UseApiConfig(env);
 
 			app.UseSwaggerConfig(provider);
+
+			app.UseLoggingConfiguration();
 		}
 	}
 }
