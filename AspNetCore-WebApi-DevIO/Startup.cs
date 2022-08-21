@@ -6,6 +6,7 @@ using Mailing.Domain;
 using Mailing.Domain.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,15 +43,17 @@ namespace AspNetCore_WebApi_DevIO
 
 			services.AddApiConfig();
 
-			services.AddControllers();
+			services.AddSwaggerConfig();
 
 			services.ResolveDependencies();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
 		{
 			app.UseApiConfig(env);
+
+			app.UseSwaggerConfig(provider);
 		}
 	}
 }

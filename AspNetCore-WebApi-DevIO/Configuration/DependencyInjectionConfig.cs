@@ -9,6 +9,8 @@ using Mailing.Services;
 using Mailing.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AspNetCore_WebApi_DevIO.Configuration
 {
@@ -24,12 +26,13 @@ namespace AspNetCore_WebApi_DevIO.Configuration
 			services.AddScoped<ISupplierService, SupplierService>();
 			services.AddScoped<IProductService, ProductService>();
 			services.AddScoped<INotifier, Notifier>();
+			services.AddScoped<ITransmissionService, TransmissionService>();
 			services.AddScoped<AuthenticationService>();
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddScoped<IUser, AspNetUser>();
 
-			services.AddScoped<ITransmissionService, TransmissionService>();
+			services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 			return services;
 		}
